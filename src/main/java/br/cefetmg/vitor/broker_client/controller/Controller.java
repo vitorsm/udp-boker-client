@@ -25,7 +25,8 @@ public class Controller {
 	private MainScreen screen;
 	private ClientListener clientListener;
 	private SendMessageToBroker sendMessageToBroker;
-
+	private String id;
+	
 	public Controller() throws IOException {
 
 		screen = new MainScreen();
@@ -91,9 +92,10 @@ public class Controller {
 
 	public Message buildHelloMessage(MessageHeader messageHeader) {
 		messageHeader.setAccessToken("");
+		this.id = screen.getMessageSendView().getId();
 		
 		Credentials credentials = new Credentials();
-		credentials.setId(screen.getMessageSendView().getId());
+		credentials.setId(this.id);
 		credentials.setPassword(screen.getMessageSendView().getPassword());
 
 		MessageBodyHello messageBody = new MessageBodyHello();
