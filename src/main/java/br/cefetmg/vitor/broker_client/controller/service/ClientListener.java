@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+import javax.swing.JOptionPane;
+
 import br.cefetmg.vitor.broker_client.controller.Controller;
 import br.cefetmg.vitor.udp_broker.Constants;
 import br.cefetmg.vitor.udp_broker.models.message.Message;
@@ -24,7 +26,7 @@ public class ClientListener implements Runnable {
 	public ClientListener(Controller controller) throws SocketException {
 		this.controller = controller;
 		
-		socket = new DatagramSocket(Constants.SERVER_PORT);
+		socket = new DatagramSocket(Constants.CLIENT_PORT);
 		running = true;
 		buffer = new byte[Constants.MESSAGE_LENGTH];
 	}
@@ -37,6 +39,7 @@ public class ClientListener implements Runnable {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
 				
+				JOptionPane.showMessageDialog(null, "Mensagem recebida");
 				proccessMessage(packet);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -59,6 +62,8 @@ public class ClientListener implements Runnable {
 	private void proccessData(Message message, DatagramPacket packet) {
 		message.convertMessageBodyToPublishMessageBody();
 		MessageBodyPublish messageBody = (MessageBodyPublish) message.getMessageBody();
+		System.out.println("content: " + messageBody.getMessageContent());
+		System.out.println("topic: " + messageBody.getTopic().getValue());
 		controller.setMessageData(messageBody, packet.getAddress().getHostAddress());
 	}
 	

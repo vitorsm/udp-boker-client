@@ -16,6 +16,7 @@ public class App {
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, e.getMessage());
+			System.exit(-1);
 		}
 		
 	}
