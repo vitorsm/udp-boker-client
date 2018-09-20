@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 
 import javax.swing.JOptionPane;
 
@@ -39,7 +40,13 @@ public class ClientListener implements Runnable {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
 				
-				JOptionPane.showMessageDialog(null, "Mensagem recebida");
+				JOptionPane.showMessageDialog(null, "Mensagem recebida:");
+				//teste
+				if (packet.getData() != null) {
+					String msg = new String(packet.getData(), Charset.forName("utf-8"));
+					JOptionPane.showMessageDialog(null, msg);
+				}
+				
 				proccessMessage(packet);
 			} catch (IOException e) {
 				e.printStackTrace();
