@@ -1,4 +1,4 @@
-package br.cefetmg.vitor.broker_client.view;
+package br.cefetmg.vitor.broker_client.view.sendMessage;
 
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
@@ -9,9 +9,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import br.cefetmg.vitor.broker_client.ViewConstants;
+import br.cefetmg.vitor.broker_client.view.InputView;
 import br.cefetmg.vitor.udp_broker.models.message.MessageType;
 
-public class MessageSendView extends JPanel {
+public class MessageDataView extends JPanel {
 
 	private JComboBox<MessageType> boxMessageType;
 	private JTextField textToken;
@@ -28,7 +29,7 @@ public class MessageSendView extends JPanel {
 	private InputView inputId;
 	private InputView inputPassword;
 	
-	public MessageSendView() {
+	public MessageDataView() {
 	
 		setLayout(new BorderLayout());
 		

@@ -1,47 +1,38 @@
 package br.cefetmg.vitor.broker_client.view;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import br.cefetmg.vitor.broker_client.ViewConstants;
+import br.cefetmg.vitor.broker_client.view.clients.ClientsDataView;
+import br.cefetmg.vitor.broker_client.view.sendMessage.MessageDataView;
 import br.com.intcode.graphsupport.screenBounds.ScreenBounds;
 
 public class MainScreen extends JFrame {
 
 	private JPanel contentPanel;
-	private MessageSendView messageSendView;
+	private ParamsView sendMessageView;
 	private MessageView messageView;
-	private JButton btSendMessage;
 	
 	public MainScreen() {
 		
 		ScreenBounds sb = new ScreenBounds(ViewConstants.SCREEN_WIDTH, ViewConstants.SCREEN_HEIGHT);
 		setBounds(sb.getX(), sb.getY(), sb.getWidth(), sb.getHeight());
 		setTitle("UDP Broker Client");
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		contentPanel = new JPanel();
+		contentPanel.setLayout(new BorderLayout());
 		setContentPane(contentPanel);
 		
-		contentPanel.setLayout(new BorderLayout());
+		sendMessageView = new ParamsView();
 		
-		JPanel pInput = new JPanel();
-		contentPanel.add(pInput, BorderLayout.NORTH);
-		
-		messageSendView = new MessageSendView();
-		pInput.add(messageSendView);
-		
-		JPanel pBtSendMessage = new JPanel();
-		contentPanel.add(pBtSendMessage, BorderLayout.CENTER);
-		
-		btSendMessage = new JButton("Enviar");
-		pBtSendMessage.add(btSendMessage);
-		
+		JPanel pNorth = new JPanel();
+		pNorth.add(sendMessageView);
+		contentPanel.add(pNorth, BorderLayout.NORTH);
 		
 		JPanel pMessageView = new JPanel();
 		contentPanel.add(pMessageView, BorderLayout.SOUTH);
@@ -56,10 +47,18 @@ public class MainScreen extends JFrame {
 	}
 	
 	public JButton getBtSendMessage() {
-		return this.btSendMessage;
+		return this.sendMessageView.getBtSendMessage();
 	}
 	
-	public MessageSendView getMessageSendView() {
-		return this.messageSendView;
+	public JButton getBtCreateClients() {
+		return this.sendMessageView.getBtCreateClients();
+	}
+	
+	public MessageDataView getMessageSendView() {
+		return this.sendMessageView.getMessageSendView();
+	}
+	
+	public ClientsDataView getClientsDataView() {
+		return this.sendMessageView.getClientsDataView();
 	}
 }

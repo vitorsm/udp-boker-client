@@ -8,13 +8,18 @@ import java.net.InetAddress;
 import br.cefetmg.vitor.udp_broker.Constants;
 import br.cefetmg.vitor.udp_broker.models.message.Message;
 
-public class SendMessageToBroker {
+public class SendMessageService {
 	private InetAddress serverAddress;
 	private int serverPort;
 	
-	public SendMessageToBroker() throws IOException {
+	public SendMessageService() throws IOException {
 		serverPort = Constants.SERVER_PORT;
 		serverAddress = InetAddress.getByName("255.255.255.255");
+	}
+	
+	public SendMessageService(String ipAddress) throws IOException {
+		serverPort = Constants.SERVER_PORT;
+		serverAddress = InetAddress.getByName(ipAddress);
 	}
 	
 	public void setAddress(InetAddress serverAddress) {

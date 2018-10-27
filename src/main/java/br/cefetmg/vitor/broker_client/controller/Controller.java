@@ -4,15 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import br.cefetmg.vitor.broker_client.controller.service.ClientListener;
-import br.cefetmg.vitor.broker_client.controller.service.SendMessageToBroker;
+import br.cefetmg.vitor.broker_client.controller.service.ClientSendMessage;
+import br.cefetmg.vitor.broker_client.controller.service.SendMessageService;
 import br.cefetmg.vitor.broker_client.view.MainScreen;
 import br.cefetmg.vitor.udp_broker.core.impl.Credentials;
-import br.cefetmg.vitor.udp_broker.core.impl.SendUdpMessage;
 import br.cefetmg.vitor.udp_broker.models.Topic;
 import br.cefetmg.vitor.udp_broker.models.message.Message;
 import br.cefetmg.vitor.udp_broker.models.message.MessageHeader;
@@ -24,15 +25,16 @@ public class Controller {
 
 	private MainScreen screen;
 	private ClientListener clientListener;
-	private SendMessageToBroker sendMessageToBroker;
+	private SendMessageService sendMessageToBroker;
 	private String id;
+	private List<ClientSendMessage> clients;
 	
 	public Controller() throws IOException {
 
 		screen = new MainScreen();
 		screen.setVisible(true);
 
-		sendMessageToBroker = new SendMessageToBroker();
+		sendMessageToBroker = new SendMessageService();
 
 		clientListener = new ClientListener(this);
 		Thread thread = new Thread(clientListener);
@@ -48,14 +50,103 @@ public class Controller {
 				}
 			}
 		});
+		
+		screen.getBtCreateClients().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					screen.getBtCreateClients().setEnabled(false);
+					screen.getBtSendMessage().setEnabled(false);
+					createClients();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage());
+					
+					screen.getBtCreateClients().setEnabled(true);
+					screen.getBtSendMessage().setEnabled(true);
+				}
+			}
+		});
 	}
 	
 	public void setAddress(InetAddress address) {
 		sendMessageToBroker.setAddress(address);
 	}
 	
+	public void createClients() throws IOException {
+		Message message = buildMessage();
+		
+		if (message != null) {
+			int clientsAmount = 0;
+			int time = 0;
+			int maxAmountMessage = 0;
+			String ipAddress = screen.getClientsDataView().getTextIpAddress().getText().trim();
+			
+			try {
+				clientsAmount = Integer.parseInt(screen.getClientsDataView().getTextClientsAmount().getText().trim());
+			} catch (NumberFormatException ex) {
+			}
+			try {
+				time = Integer.parseInt(screen.getClientsDataView().getTextTime().getText().trim());
+			} catch (NumberFormatException ex) {
+			}
+			try {
+				maxAmountMessage = Integer.parseInt(screen.getClientsDataView().getTextMaximumMessageAmount().getText().trim());
+			} catch (NumberFormatException ex) {
+			}
+			
+			if (clientsAmount <= 0)
+				throw new IOException("É necessário informar uma quantidade de clientes maior que 0");
+			
+			if (time <= 0)
+				throw new IOException("É necessário informar um intervalor de tempo maior que 0");
+			
+			if (maxAmountMessage <= 0)
+				throw new IOException("É necessário informar uma quantidade de mensagens maior que 0");
+			
+			if (ipAddress.equals(""))
+				throw new IOException("É necessário informar endereco de IP para q os clientes enviem msg");
+			
+			clients = new ArrayList<ClientSendMessage>();
+			for (int i = 0; i < clientsAmount; i++) {
+				ClientSendMessage client = new ClientSendMessage(this, message, ipAddress, time, maxAmountMessage);
+				clients.add(client);
+				
+				Thread t = new Thread(client);
+				t.start();
+			}
+		}
+	}
+	
+	public void finishClient() {
+		System.out.println("terminou 1");
+		for (ClientSendMessage client : clients) {
+			if (client.isActive())
+				return;
+		}
+		System.out.println("terminou tudo");
+		screen.getBtCreateClients().setEnabled(true);
+		screen.getBtSendMessage().setEnabled(true);
+	}
+	
+	public void updateSentMessage(ClientSendMessage client) {
+		
+		String txt = "Cliente " + clients.indexOf(client) 
+			+ ": " + client.getCountSentMessage();
+		
+		
+		screen.getMessageView().setMessage(txt);
+	}
+	
 	public void sendMessage() throws IOException {
 
+		Message message = buildMessage();
+		
+		if (message != null) {
+			sendMessageToBroker.sendMessage(message);
+		}
+	}
+	
+	public Message buildMessage() {
 		MessageHeader messageHeader = new MessageHeader();
 		messageHeader.setMessageType(screen.getMessageSendView().getMessageType());
 		
@@ -63,15 +154,13 @@ public class Controller {
 		if (messageHeader.getMessageType() == MessageType.HELLO) {
 			message = buildHelloMessage(messageHeader);
 		} else if (messageHeader.getMessageType() == MessageType.PUBLISH) {
-			message = buildDataMessage(messageHeader);
+			message = buildPublishMessage(messageHeader);
 		}
 		
-		if (message != null) {
-			sendMessageToBroker.sendMessage(message);
-		}
+		return message;
 	}
 
-	public Message buildDataMessage(MessageHeader messageHeader) {
+	public Message buildPublishMessage(MessageHeader messageHeader) {
 		messageHeader.setAccessToken(screen.getMessageSendView().getToken());
 
 		Topic topic = new Topic();
