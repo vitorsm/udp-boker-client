@@ -24,10 +24,10 @@ public class ClientListener implements Runnable {
 	
 	private Controller controller;
 	
-	public ClientListener(Controller controller) throws SocketException {
+	public ClientListener(Controller controller, int port) throws SocketException {
 		this.controller = controller;
 		
-		socket = new DatagramSocket(Constants.CLIENT_PORT);
+		socket = new DatagramSocket(port);
 		running = true;
 		buffer = new byte[Constants.MESSAGE_LENGTH];
 	}
@@ -38,14 +38,16 @@ public class ClientListener implements Runnable {
 		while (running) {
 			try {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-				socket.receive(packet);
 				
-				JOptionPane.showMessageDialog(null, "Mensagem recebida:");
-				//teste
-				if (packet.getData() != null) {
-					String msg = new String(packet.getData(), Charset.forName("utf-8"));
-					JOptionPane.showMessageDialog(null, msg);
-				}
+				socket.receive(packet);
+				controller.receivedMessage();
+				
+//				JOptionPane.showMessageDialog(null, "Mensagem recebida:");
+//				//teste
+//				if (packet.getData() != null) {
+//					String msg = new String(packet.getData(), Charset.forName("utf-8"));
+//					JOptionPane.showMessageDialog(null, msg);
+//				}
 				
 				proccessMessage(packet);
 			} catch (IOException e) {

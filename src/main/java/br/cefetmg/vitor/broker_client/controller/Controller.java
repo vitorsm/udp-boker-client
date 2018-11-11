@@ -13,6 +13,7 @@ import br.cefetmg.vitor.broker_client.controller.service.ClientListener;
 import br.cefetmg.vitor.broker_client.controller.service.ClientSendMessage;
 import br.cefetmg.vitor.broker_client.controller.service.SendMessageService;
 import br.cefetmg.vitor.broker_client.view.MainScreen;
+import br.cefetmg.vitor.udp_broker.Constants;
 import br.cefetmg.vitor.udp_broker.core.impl.Credentials;
 import br.cefetmg.vitor.udp_broker.models.Topic;
 import br.cefetmg.vitor.udp_broker.models.message.Message;
@@ -28,6 +29,8 @@ public class Controller {
 	private SendMessageService sendMessageToBroker;
 	private String id;
 	private List<ClientSendMessage> clients;
+	private long timeMessageSent;
+	private boolean showTimeReceivedMessage;
 	
 	public Controller() throws IOException {
 
@@ -36,7 +39,8 @@ public class Controller {
 
 		sendMessageToBroker = new SendMessageService();
 
-		clientListener = new ClientListener(this);
+//		clientListener = new ClientListener(this, Constants.SERVER_PORT);
+		clientListener = new ClientListener(this, Constants.CLIENT_PORT);
 		Thread thread = new Thread(clientListener);
 		thread.start();
 
@@ -44,7 +48,8 @@ public class Controller {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					sendMessage();
+					showTimeReceivedMessage = screen.isShowTimeReceivedMessage();
+					timeMessageSent = sendMessage();
 				} catch(IOException ex) {
 					JOptionPane.showMessageDialog(null, ex.getMessage());
 				}
@@ -106,6 +111,8 @@ public class Controller {
 			if (ipAddress.equals(""))
 				throw new IOException("É necessário informar endereco de IP para q os clientes enviem msg");
 			
+			timeMessageSent = System.currentTimeMillis();
+			
 			clients = new ArrayList<ClientSendMessage>();
 			for (int i = 0; i < clientsAmount; i++) {
 				ClientSendMessage client = new ClientSendMessage(this, message, ipAddress, time, maxAmountMessage);
@@ -137,13 +144,15 @@ public class Controller {
 		screen.getMessageView().setMessage(txt);
 	}
 	
-	public void sendMessage() throws IOException {
+	public long sendMessage() throws IOException {
 
 		Message message = buildMessage();
 		
 		if (message != null) {
-			sendMessageToBroker.sendMessage(message);
+			return sendMessageToBroker.sendMessage(message);
 		}
+		
+		return 0;
 	}
 	
 	public Message buildMessage() {
@@ -232,5 +241,12 @@ public class Controller {
 		
 		return strReturn;
 	}
-	
+
+	public void receivedMessage() {
+		if (showTimeReceivedMessage) {
+			long time = System.currentTimeMillis() - timeMessageSent;
+			
+			JOptionPane.showMessageDialog(null, "Tempo de resposta: " + time + "ms");
+		}
+	}
 }

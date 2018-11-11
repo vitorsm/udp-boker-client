@@ -26,7 +26,7 @@ public class SendMessageService {
 		this.serverAddress = serverAddress;
 	}
 	
-	public void sendMessage(Message message) throws IOException {
+	public long sendMessage(Message message) throws IOException {
 		
 		byte[] messageBytes = message.getBytes();
 		
@@ -34,6 +34,8 @@ public class SendMessageService {
 		DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, serverAddress, serverPort);
 		
 		socket.send(packet);
+		
+		return System.currentTimeMillis();
 	}
 	
 }

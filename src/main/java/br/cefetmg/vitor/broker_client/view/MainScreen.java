@@ -61,4 +61,8 @@ public class MainScreen extends JFrame {
 	public ClientsDataView getClientsDataView() {
 		return this.sendMessageView.getClientsDataView();
 	}
+	
+	public boolean isShowTimeReceivedMessage() {
+		return sendMessageView.isShowTimeReceivedMessage();
+	}
 }

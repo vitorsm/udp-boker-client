@@ -58,4 +58,8 @@ public class ParamsView extends JPanel {
 	public ClientsDataView getClientsDataView() {
 		return this.clientsDataView;
 	}
+	
+	public boolean isShowTimeReceivedMessage() {
+		return messageSendView.isShowTimeReceivedMessage();
+	}
 }

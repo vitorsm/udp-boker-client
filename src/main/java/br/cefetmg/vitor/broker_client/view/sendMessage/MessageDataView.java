@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -29,12 +30,20 @@ public class MessageDataView extends JPanel {
 	private InputView inputId;
 	private InputView inputPassword;
 	
+	private JCheckBox showTimeReceivedMessage;
+	
 	public MessageDataView() {
 	
 		setLayout(new BorderLayout());
 		
 		JPanel pCenter = new JPanel();
 		add(pCenter, BorderLayout.CENTER);
+	
+		JPanel pNorth = new JPanel();
+		add(pNorth, BorderLayout.NORTH);
+		
+		showTimeReceivedMessage = new JCheckBox("Mostrar tempo q recebeu resposta");
+		pNorth.add(showTimeReceivedMessage);
 		
 		boxMessageType = new JComboBox<MessageType>();
 		inputMessageType = new InputView("Tipo de mensagem", boxMessageType);
@@ -121,6 +130,10 @@ public class MessageDataView extends JPanel {
 			id = id.trim();
 		
 		return id;
+	}
+	
+	public boolean isShowTimeReceivedMessage() {
+		return showTimeReceivedMessage.isSelected();
 	}
 	
 	public String getPassword() {
